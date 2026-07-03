@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 
 // ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
 const T = {
-  dark:  { base:"#0f172a", surface:"#1e293b", card:"#334155", border:"#475569", text:"#f8fafc", muted:"#94a3b8" },
-  light: { base:"#f1f5f9", surface:"#ffffff",  card:"#f8fafc",  border:"#e2e8f0", text:"#0f172a", muted:"#64748b" },
-  accent:"#1a8a5a", success:"#16a34a", warning:"#d97706", danger:"#dc2626",
+  dark:  { base:"#0d1410", surface:"#16211a", card:"#1e2b22", border:"#2c3a30", text:"#f0f4f0", muted:"#8fa898" },
+  light: { base:"#f0f4f0", surface:"#ffffff", card:"#f5f8f5", border:"#e0e8e2", text:"#111c16", muted:"#5a7060" },
+  accent:"#1a6b3c", success:"#16a34a", warning:"#d97706", danger:"#dc2626",
+  shadow:"0 2px 8px rgba(26,107,60,.08)",
 };
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
@@ -53,7 +54,7 @@ const I = {
 const ROLLEN = { KM:"kaufmännisch", GW:"gewerblich", AG:"auftraggeber", EX:"extern" };
 const STATUS_LIST = [
   { name:"Planung", color:"#d97706" },
-  { name:"Terminiert", color:"#1a8a5a" },
+  { name:"Terminiert", color:"#1a6b3c" },
   { name:"In Montage", color:"#0891b2" },
   { name:"Reklamation", color:"#dc2626" },
   { name:"Montage Abgeschlossen", color:"#7c3aed" },
@@ -148,7 +149,7 @@ function Badge({ txt, color }) {
 }
 function Card({ dark, children, className="" }) {
   const t = dark?T.dark:T.light;
-  return <div className={`rounded-xl border ${className}`} style={{ background:t.surface, borderColor:t.border }}>{children}</div>;
+  return <div className={`border ${className}`} style={{ background:t.surface, borderColor:t.border, borderRadius:20, boxShadow:T.shadow }}>{children}</div>;
 }
 function useIsMobile() {
   const [mobile, setMobile] = useState(window.innerWidth < 768);
@@ -283,7 +284,7 @@ function ProjektDetail({ p, dark, onClose, mobile }) {
   );
 
   return (
-    <div className="rounded-xl border flex flex-col h-full overflow-hidden" style={{ background:t.surface, borderColor:t.border }}>
+    <div className="border flex flex-col h-full overflow-hidden" style={{ background:t.surface, borderColor:t.border, borderRadius:20, boxShadow:T.shadow }}>
       <div className="p-4 border-b flex items-start justify-between gap-3 flex-shrink-0" style={{ borderColor:t.border }}>
         <div className="flex-1 min-w-0">
           <Badge txt={p.status} color={p.statusColor}/>
@@ -325,10 +326,11 @@ function ProjekteView({ dark, mobile }) {
           <div className={`grid gap-3 ${sel&&!mobile?"grid-cols-1":mobile?"grid-cols-1":"grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
             {gefiltert.map(p=>(
               <div key={p.id} onClick={()=>setSel(sel?.id===p.id?null:p)}
-                className="rounded-xl border p-4 cursor-pointer transition-all"
+                className="border p-4 cursor-pointer transition-all"
                 style={{
                   background:t.surface, borderColor:p.status==="Reklamation"?T.danger:sel?.id===p.id?p.statusColor:t.border,
-                  boxShadow:p.status==="Reklamation"?`0 0 0 1px ${T.danger}33`:undefined,
+                  borderRadius:20,
+                  boxShadow:p.status==="Reklamation"?`0 0 0 1px ${T.danger}33`:T.shadow,
                 }}>
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex-1 min-w-0">
@@ -381,8 +383,8 @@ function AufgabenView({ dark }) {
       </div>
       <div className="space-y-2">
         {list.map((a)=>(
-          <div key={a.id} className="flex items-center gap-3 p-4 rounded-xl border"
-            style={{ background:t.surface, borderColor:t.border }}>
+          <div key={a.id} className="flex items-center gap-3 p-4 border"
+            style={{ background:t.surface, borderColor:t.border, borderRadius:20, boxShadow:T.shadow }}>
             <button onClick={()=>setAufg(aufg.map(x=>x.id===a.id?{...x,done:!x.done}:x))}
               className="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0"
               style={{ background:a.done?T.success:"transparent", borderColor:a.done?T.success:t.muted }}>
@@ -414,10 +416,10 @@ function ZeiterfassungView({ dark }) {
             style={{ background:laufend?T.danger:T.success }}>
             {laufend?<>{I.stop} Stopp</>:<>{I.play} Start</>}
           </button>
-          <span className="text-sm" style={{ color:t.muted }}>Projekt: <span className="font-semibold text-blue-400">P-001 · Müller</span></span>
+          <span className="text-sm" style={{ color:t.muted }}>Projekt: <span className="font-semibold" style={{ color:T.accent }}>P-001 · Müller</span></span>
         </div>
       </Card>
-      <div className="rounded-xl border-2 p-4 flex items-center gap-3" style={{ borderColor:"#7c3aed55", background:"#7c3aed11" }}>
+      <div className="border-2 p-4 flex items-center gap-3" style={{ borderColor:"#7c3aed55", background:"#7c3aed11", borderRadius:20 }}>
         <span style={{ color:"#7c3aed" }}>{I.mic}</span>
         <div>
           <p className="text-sm font-semibold" style={{ color:"#a78bfa" }}>🎙 Sprach-Aufmaß (KI)</p>
@@ -513,7 +515,7 @@ function OverviewView({ dark, setActive }) {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {kpis.map(k=>(
-          <div key={k.label} className="rounded-xl border p-4" style={{ background:k.c+"11", borderColor:k.c+"33" }}>
+          <div key={k.label} className="border p-4" style={{ background:k.c+"11", borderColor:k.c+"33", borderRadius:20 }}>
             <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color:k.c+"cc" }}>{k.label}</p>
             <p className="text-2xl font-bold" style={{ color:k.c }}>{k.val}</p>
             <p className="text-xs mt-0.5" style={{ color:k.c+"88" }}>{k.sub}</p>
@@ -521,7 +523,7 @@ function OverviewView({ dark, setActive }) {
         ))}
       </div>
       {rek>0 && (
-        <div className="rounded-xl border-2 p-4 flex items-start gap-3" style={{ borderColor:T.danger, background:T.danger+"11" }}>
+        <div className="border-2 p-4 flex items-start gap-3" style={{ borderColor:T.danger, background:T.danger+"11", borderRadius:20 }}>
           <span style={{ color:T.danger }}>{I.alert}</span>
           <div className="flex-1">
             <p className="font-bold text-sm" style={{ color:T.danger }}>Reklamation offen — sofort handeln</p>
@@ -677,7 +679,7 @@ function MobileApp({ dark, setDark, active, setActive, rolle, setRolle, navVisib
             </nav>
             <div className="px-4 py-4 border-t" style={{ borderColor:t.border }}>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-white text-xs" style={{ background:"linear-gradient(135deg,#1a8a5a,#16a34a)" }}>{nutzer?.kuerzel}</div>
+                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-white text-xs" style={{ background:"linear-gradient(135deg,#1a6b3c,#16a34a)" }}>{nutzer?.kuerzel}</div>
                 <div><p className="text-sm font-semibold" style={{ color:t.text }}>{nutzer?.name}</p><p className="text-xs" style={{ color:t.muted }}>{nutzer?.label}</p></div>
               </div>
             </div>
@@ -710,7 +712,7 @@ function DesktopApp({ dark, setDark, active, setActive, rolle, setRolle, navVisi
       <aside className="flex flex-col border-r flex-shrink-0 transition-all duration-200" style={{ width:sidebar?224:56, background:t.surface, borderColor:t.border }}>
         <div className="flex items-center gap-2.5 px-3 py-4 border-b" style={{ borderColor:t.border }}>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm flex-shrink-0" style={{ background:T.accent }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="9" width="18" height="4" rx="1"/><rect x="3" y="15" width="18" height="4" rx="1"/><circle cx="6" cy="5" r="0.8" fill="#1a8a5a"/><circle cx="6" cy="11" r="0.8" fill="#1a8a5a"/><circle cx="6" cy="17" r="0.8" fill="#1a8a5a"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="9" width="18" height="4" rx="1"/><rect x="3" y="15" width="18" height="4" rx="1"/><circle cx="6" cy="5" r="0.8" fill="#1a6b3c"/><circle cx="6" cy="11" r="0.8" fill="#1a6b3c"/><circle cx="6" cy="17" r="0.8" fill="#1a6b3c"/></svg>
           </div>
           {sidebar && <div className="min-w-0"><p className="text-sm font-bold truncate" style={{ color:t.text }}>Küchenmontagen</p><p className="text-xs truncate font-semibold" style={{ color:T.accent }}>GRUSCHWITZ</p></div>}
         </div>
@@ -748,7 +750,7 @@ function DesktopApp({ dark, setDark, active, setActive, rolle, setRolle, navVisi
         </nav>
         <div className="px-3 py-3 border-t" style={{ borderColor:t.border }}>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0" style={{ background:"linear-gradient(135deg,#1a8a5a,#16a34a)" }}>{nutzer?.kuerzel}</div>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0" style={{ background:"linear-gradient(135deg,#1a6b3c,#16a34a)" }}>{nutzer?.kuerzel}</div>
             {sidebar && <div className="min-w-0 flex-1"><p className="text-sm font-semibold truncate" style={{ color:t.text }}>{nutzer?.name}</p><p className="text-xs truncate" style={{ color:t.muted }}>{nutzer?.label}</p></div>}
           </div>
         </div>
@@ -775,7 +777,7 @@ function DesktopApp({ dark, setDark, active, setActive, rolle, setRolle, navVisi
 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(false);
   const [active, setActive] = useState("dashboard");
   const [rolle, setRolle] = useState(ROLLEN.KM);
   const mobile = useIsMobile();
