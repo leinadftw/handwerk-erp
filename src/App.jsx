@@ -595,7 +595,7 @@ function Placeholder({ dark, label, icon }) {
 }
 
 // ─── MOBILE LAYOUT ────────────────────────────────────────────────────────────
-function MobileApp({ dark, setDark, active, setActive, rolle, setRolle, navVisible, currentId }) {
+function MobileApp({ dark, setDark, active, setActive, rolle, setRolle, navVisible, currentId, firma }) {
   const t = dark?T.dark:T.light;
   const [drawer, setDrawer] = useState(false);
   const nutzer = NUTZER_DEMO.find(n=>n.val===rolle);
@@ -618,7 +618,7 @@ function MobileApp({ dark, setDark, active, setActive, rolle, setRolle, navVisib
           <div className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-white text-xs" style={{ background:T.accent }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><rect x="3" y="3" width="18" height="5" rx="1"/><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="3" y="17" width="18" height="5" rx="1"/></svg>
           </div>
-          <div><span className="font-bold text-sm" style={{ color:t.text }}>Küchenmontagen </span><span className="font-bold text-sm" style={{ color:T.accent }}>Gruschwitz</span></div>
+          <div><span className="font-bold text-sm" style={{ color:t.text }}>{firma.short} </span><span className="font-bold text-sm" style={{ color:T.accent }}>{firma.last}</span></div>
         </div>
         <div className="flex items-center gap-1">
           <button className="relative p-2 rounded-xl" style={{ color:t.muted }}>{I.bell}<span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background:T.danger }}/></button>
@@ -647,8 +647,8 @@ function MobileApp({ dark, setDark, active, setActive, rolle, setRolle, navVisib
           <div className="relative w-72 max-w-full h-full flex flex-col shadow-2xl" style={{ background:t.surface }}>
             <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor:t.border }}>
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white" style={{ background:T.accent }}>G</div>
-                <div><p className="text-sm font-bold" style={{ color:t.text }}>Küchenmontagen Gruschwitz</p><p className="text-xs" style={{ color:t.muted }}>Küchenmontagen Gruschwitz</p></div>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white" style={{ background:T.accent }}>{firma.initial}</div>
+                <div><p className="text-sm font-bold" style={{ color:t.text }}>{firma.firma}</p><p className="text-xs" style={{ color:t.muted }}>{firma.branche}</p></div>
               </div>
               <button onClick={()=>setDrawer(false)} style={{ color:t.muted }}>{I.close}</button>
             </div>
@@ -691,7 +691,7 @@ function MobileApp({ dark, setDark, active, setActive, rolle, setRolle, navVisib
 }
 
 // ─── DESKTOP LAYOUT ───────────────────────────────────────────────────────────
-function DesktopApp({ dark, setDark, active, setActive, rolle, setRolle, navVisible, currentId }) {
+function DesktopApp({ dark, setDark, active, setActive, rolle, setRolle, navVisible, currentId, firma }) {
   const t = dark?T.dark:T.light;
   const [sidebar, setSidebar] = useState(true);
   const [showRolle, setShowRolle] = useState(false);
@@ -714,7 +714,7 @@ function DesktopApp({ dark, setDark, active, setActive, rolle, setRolle, navVisi
           <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm flex-shrink-0" style={{ background:T.accent }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="9" width="18" height="4" rx="1"/><rect x="3" y="15" width="18" height="4" rx="1"/><circle cx="6" cy="5" r="0.8" fill="#1a6b3c"/><circle cx="6" cy="11" r="0.8" fill="#1a6b3c"/><circle cx="6" cy="17" r="0.8" fill="#1a6b3c"/></svg>
           </div>
-          {sidebar && <div className="min-w-0"><p className="text-sm font-bold truncate" style={{ color:t.text }}>Küchenmontagen</p><p className="text-xs truncate font-semibold" style={{ color:T.accent }}>GRUSCHWITZ</p></div>}
+          {sidebar && <div className="min-w-0"><p className="text-sm font-bold truncate" style={{ color:t.text }}>{firma.short}</p><p className="text-xs truncate font-semibold" style={{ color:T.accent }}>{firma.last}</p></div>}
         </div>
         <div className="px-2 py-2 border-b relative" style={{ borderColor:t.border }}>
           <button onClick={()=>setShowRolle(!showRolle)}
@@ -776,17 +776,30 @@ function DesktopApp({ dark, setDark, active, setActive, rolle, setRolle, navVisi
 }
 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
+function useFirmaDaten() {
+  const p = new URLSearchParams(window.location.search);
+  const firma   = p.get("firma")   || "Küchenmontagen Gruschwitz";
+  const branche = p.get("branche") || "Küchenmontagen";
+  const ort     = p.get("ort")     || "Leipzig";
+  const parts   = firma.trim().split(/\s+/);
+  const initial = parts[parts.length - 1]?.[0]?.toUpperCase() || "K";
+  const short   = parts.length > 1 ? parts.slice(0, -1).join(" ") : firma;
+  const last    = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : firma.toUpperCase();
+  return { firma, branche, ort, initial, short, last };
+}
+
 export default function App() {
   const [dark, setDark] = useState(false);
   const [active, setActive] = useState("dashboard");
   const [rolle, setRolle] = useState(ROLLEN.KM);
   const mobile = useIsMobile();
+  const firma = useFirmaDaten();
 
   const navVisible = NAV.filter(n=>n.rollen.includes(rolle));
   const currentItem = navVisible.find(n=>n.id===active) || navVisible[0];
   const currentId = currentItem?.id || "dashboard";
 
-  const props = { dark, setDark, active, setActive, rolle, setRolle, navVisible, currentId };
+  const props = { dark, setDark, active, setActive, rolle, setRolle, navVisible, currentId, firma };
 
   return mobile ? <MobileApp {...props}/> : <DesktopApp {...props}/>;
 }
