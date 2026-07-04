@@ -647,7 +647,7 @@ function MobileApp({ dark, setDark, active, setActive, rolle, setRolle, navVisib
           <div className="relative w-72 max-w-full h-full flex flex-col shadow-2xl" style={{ background:t.surface }}>
             <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor:t.border }}>
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white" style={{ background:T.accent }}>{firma.initial}</div>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white overflow-hidden" style={{ background:T.accent }}>{firma.logo ? <img src={firma.logo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : firma.initial}</div>
                 <div><p className="text-sm font-bold" style={{ color:t.text }}>{firma.firma}</p><p className="text-xs" style={{ color:t.muted }}>{firma.branche}</p></div>
               </div>
               <button onClick={()=>setDrawer(false)} style={{ color:t.muted }}>{I.close}</button>
@@ -711,8 +711,8 @@ function DesktopApp({ dark, setDark, active, setActive, rolle, setRolle, navVisi
       {/* SIDEBAR */}
       <aside className="flex flex-col border-r flex-shrink-0 transition-all duration-200" style={{ width:sidebar?224:56, background:t.surface, borderColor:t.border }}>
         <div className="flex items-center gap-2.5 px-3 py-4 border-b" style={{ borderColor:t.border }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm flex-shrink-0" style={{ background:T.accent }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="9" width="18" height="4" rx="1"/><rect x="3" y="15" width="18" height="4" rx="1"/><circle cx="6" cy="5" r="0.8" fill="#1a6b3c"/><circle cx="6" cy="11" r="0.8" fill="#1a6b3c"/><circle cx="6" cy="17" r="0.8" fill="#1a6b3c"/></svg>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm flex-shrink-0 overflow-hidden" style={{ background:T.accent }}>
+            {firma.logo ? <img src={firma.logo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="9" width="18" height="4" rx="1"/><rect x="3" y="15" width="18" height="4" rx="1"/><circle cx="6" cy="5" r="0.8" fill="#1a6b3c"/><circle cx="6" cy="11" r="0.8" fill="#1a6b3c"/><circle cx="6" cy="17" r="0.8" fill="#1a6b3c"/></svg>}
           </div>
           {sidebar && <div className="min-w-0"><p className="text-sm font-bold truncate" style={{ color:t.text }}>{firma.short}</p><p className="text-xs truncate font-semibold" style={{ color:T.accent }}>{firma.last}</p></div>}
         </div>
@@ -781,11 +781,13 @@ function useFirmaDaten() {
   const firma   = p.get("firma")   || "Küchenmontagen Gruschwitz";
   const branche = p.get("branche") || "Küchenmontagen";
   const ort     = p.get("ort")     || "Leipzig";
+  const color   = p.get("color")   || null;
+  const logo    = p.get("logo")    || null;
   const parts   = firma.trim().split(/\s+/);
   const initial = parts[parts.length - 1]?.[0]?.toUpperCase() || "K";
   const short   = parts.length > 1 ? parts.slice(0, -1).join(" ") : firma;
   const last    = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : firma.toUpperCase();
-  return { firma, branche, ort, initial, short, last };
+  return { firma, branche, ort, initial, short, last, color, logo };
 }
 
 export default function App() {
@@ -794,6 +796,7 @@ export default function App() {
   const [rolle, setRolle] = useState(ROLLEN.KM);
   const mobile = useIsMobile();
   const firma = useFirmaDaten();
+  if (firma.color) T.accent = firma.color;
 
   const navVisible = NAV.filter(n=>n.rollen.includes(rolle));
   const currentItem = navVisible.find(n=>n.id===active) || navVisible[0];
